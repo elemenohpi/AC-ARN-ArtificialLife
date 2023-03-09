@@ -7,3 +7,4 @@ Algorithm summarizing the algorithm used to model the GRN: [Algorithm](https://g
 Installation: TBA
 
 -----------------------------------------------------------------------
+How to use: TBA
