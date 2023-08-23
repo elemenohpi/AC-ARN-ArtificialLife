@@ -80,7 +80,7 @@ class Cell:
                 gene.exon.append(bp)
             if record_flag and self.is_terminator(index):  # if terminator was found. stop recording
                 gene.exon = gene.exon[len(self.promoter_seq):]
-                if len(gene.exon) < 4:
+                if len(gene.exon) < 6:
                     record_flag = False
                     continue
                 gene.promoter = self.promoter_seq
@@ -90,6 +90,12 @@ class Cell:
                 self.genes.append(gene)
                 record_flag = False
                 start_index = -1
+                # if len(gene.exon) < 20:
+                #     print(gene.enhancer)
+                #     print(gene.inhibitor)
+                #     print(gene.protein)
+                #     print(gene.exon)
+                #     exit()
 
     def is_promoter(self, start):
         for index, bp in enumerate(self.promoter_seq):

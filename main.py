@@ -54,29 +54,30 @@ def main():
     Pop = Nature(config)
     Pop.create_organisms()
 
-    # Evolution
-    all_data = []
-    for i in range(10):
-        Pop = Nature(config)
-        Pop.create_organisms()
+    # # Evolution
+    # all_data = []
+    # for i in range(10):
+    #     Pop = Nature(config)
+    #     Pop.create_organisms()
+    #
+    #     evolver = Evolver(config)
+    #     evolver.plot_name = "exp_" + str(i+1)
+    #     data = evolver.evolve(Pop.organisms)
+    #     all_data.append(data)
+    # plot_evolution(all_data)
+    #
+    # exit()
 
-        evolver = Evolver(config)
-        evolver.plot_name = "exp_" + str(i+1)
-        data = evolver.evolve(Pop.organisms)
-        all_data.append(data)
-    plot_evolution(all_data)
+    # Dynamic Generation
+    for index, organism in enumerate(Pop.organisms):
+        organism.init_life()
+        conc_array, rate_array = organism.live(int(config["cycles"]))
+        plot_individual(conc_array)
+        # plot_save_individual(conc_array, "plot_" + str(index))
+        # plot_save_rate(rate_array, "rate_" + str(index))
 
     exit()
 
-    # # Dynamic Generation
-    # for index, organism in enumerate(Pop.organisms):
-    #     organism.init_life()
-    #     conc_array, rate_array = organism.live(int(config["cycles"]))
-    #     plot_individual(conc_array)
-    #     # plot_save_individual(conc_array, "plot_" + str(index))
-    #     # plot_save_rate(rate_array, "rate_" + str(index))
-    #
-    # exit()
     # Initial State Comparison
     conc_array = []
     comparison_data = []

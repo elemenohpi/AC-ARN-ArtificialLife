@@ -9,7 +9,7 @@ class Nature:
             self.organism_count = int(config["organism_count"])
             self.cycles = int(config["cycles"])
         except KeyError as e:
-            raise KeyError(e, "Configuration file missing some variables")
+            raise KeyError(e, "Configuration file missing variables")
 
         self.organisms = []
 

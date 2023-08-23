@@ -27,33 +27,22 @@ class Gene:
         print("Protein: ", self.protein)
 
     def process_exon(self, dna, start):
-        if len(dna) < 4 or len(self.exon) < 4:
+        if len(dna) < 6 or len(self.exon) < 6:
             raise Exception("DNA or EXON too short")
 
         # regulatory sites length = radical exon length
         reg_length = math.floor(math.sqrt(len(self.exon)))
 
-        locator = self.exon[0:reg_length]
-
-        distance = 0
-        for bp in locator:
-            if bp == "T":
-                distance += -1
-            elif bp == "G":
-                distance += -2
-            elif bp == "C":
-                distance += +1
-            elif bp == "A":
-                distance += +2
-
-        reg_site_starting_point = (start + distance) % len(dna)
+        reg_site_starting_point = start % len(dna)
         self.enhancer = cell.return_site_from_dna(dna, reg_site_starting_point, reg_length)
         self.inhibitor = cell.return_site_from_dna(dna, reg_site_starting_point + reg_length, reg_length)
         self.protein = self.find_protein(reg_length)
 
     def find_protein(self, length):
-        exon = self.exon[length:]
-        chunk_size = math.ceil(len(exon) / length)
+        # print(f"length of exon: {len(self.exon)}, length of reg site: {length}, ", end="")
+        exon = self.exon[length * 2:]
+        chunk_size = math.floor(len(exon) / length)
+        # print(f"length of exon after trim: {len(exon)}, chunk size: {chunk_size}")
         protein = []
         # for each bp in the protein
         for i in range(length):
@@ -64,12 +53,21 @@ class Gene:
             protein.append(self.find_majority(chunk))
         return protein
 
-    def find_majority(self, array):
-        # index 0, 1, 2, 3 are A, G, C, T respectively
-        distribution = {"A": 0, "G": 0, "C": 0, "T": 0}
-        for element in array:
-            distribution[element] += 1
-        majority = max(distribution, key=distribution.get)
-        return majority
+    def find_majority(self, sequence):
+        base_counts = {}
+
+        for i, base in enumerate(sequence):
+            if base in base_counts:
+                base_counts[base][0] += 1
+            else:
+                base_counts[base] = [1, i]
+
+        most_common = None
+
+        for base, (count, index) in base_counts.items():
+            if most_common is None or most_common[1] < count or (most_common[1] == count and most_common[2] > index):
+                most_common = [base, count, index]
+
+        return most_common[0]
 
 
