@@ -73,6 +73,7 @@ def main():
         organism.init_life()
         conc_array, rate_array = organism.live(int(config["cycles"]))
         plot_individual(conc_array)
+        plot_rate(rate_array, 0)
         # plot_save_individual(conc_array, "plot_" + str(index))
         # plot_save_rate(rate_array, "rate_" + str(index))
 
@@ -439,7 +440,7 @@ def plot_save_individual(data, file_name: str):
     plt.clf()
 
 
-def plot_save_rate(data, file_name: str):
+def plot_rate(data, prot, file_name=None):
     output = []
     for i in range(len(data[0])):
         output.append([])
@@ -454,13 +455,16 @@ def plot_save_rate(data, file_name: str):
         i = i + 1
 
     for index, item in enumerate(output):
-        if index != 4:
+        if index != prot:
             continue
         plt.plot(x, item, color="C4", label="Protein " + str(index + 1))
     plt.legend(loc="center right")
     plt.xlabel("Time (cycle)")
     plt.ylabel("Production Rate")
-    plt.savefig("Output/plots/rate_" + file_name + ".png")
+    if file_name is not None:
+        plt.savefig("Output/plots/rate_" + file_name + ".png")
+    else:
+        plt.show()
     plt.clf()
 
  
