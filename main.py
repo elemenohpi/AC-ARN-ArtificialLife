@@ -11,6 +11,9 @@ from evolver import Evolver
 from scipy import stats
 from cell import Cell
 from statsmodels.tsa.stattools import grangercausalitytests
+import warnings
+import numpy as np
+warnings.filterwarnings('ignore')
 
 F = eletility.Files()
 
@@ -68,50 +71,59 @@ def main():
     #
     # exit()
 
-    # Dynamic Generation
-    for index, organism in enumerate(Pop.organisms):
-        organism.init_life()
-        conc_array, rate_array = organism.live(int(config["cycles"]))
-        plot_individual(conc_array)
-        plot_rate(rate_array, 0)
-        # plot_save_individual(conc_array, "plot_" + str(index))
-        # plot_save_rate(rate_array, "rate_" + str(index))
-
-    exit()
+    # # Dynamic Generation
+    # for index, organism in enumerate(Pop.organisms):
+    #     organism.init_life()
+    #     conc_array, rate_array = organism.live(int(config["cycles"]))
+    #     plot_individual(conc_array)
+    #     # plot_rate(rate_array, 0)
+    #     # plot_save_individual(conc_array, "plot_" + str(index))
+    #     # plot_save_rate(rate_array, "rate_" + str(index))
+    #
+    # exit()
 
     # Initial State Comparison
     conc_array = []
-    comparison_data = []
+
     protein_id = 0
     for index, organism in enumerate(Pop.organisms):
+        comparison_data = []
         start_random_state = random.getstate()
         move_random_state = None
         labels = []
         starting_concentration_conditions = ["(1/len(self.genes))", "0.1", "random.random()"]
-        labels = ["conc = 1/N", "0", "random"]
+        labels = ["conc = 1/N", "conc = 0", "conc = random", "t1", "t2", "t3", "r4", "r6", "r6", "123"]
         gene_positions = [[(11, 10), (0, 2)], [(10, 10), (2, 1)], [(10, 11), (1, 3)], [(10, 11), (2, 2)]]
-
-        for i in range(2):
-            # random.setstate(start_random_state)
-
+        labels = []
+        skip = False
+        for i in range(5):
+            random.setstate(start_random_state)
+            # organism.beta = 1 + i * 0.05  # change this
             # organism.delta = 1 - i * 0.1  # change this
             # organism.TF_count = 25 - i * 5  # change this
             # organism.cell_size = 10 + i * 5  # change this
-            # mock_mutate_init(organism, i, start_random_state)  # change this
+            labels.append(f"m = {i}")
+            mock_mutate_init(organism, i, start_random_state)  # change this
             # organism.starting_concentrations = starting_concentration_conditions[i]
-            # random.setstate(start_random_state)
+            # for gene in organism.genes:
+            #     gene.protein_concentration = "2"
+            random.setstate(start_random_state)
             organism.init_life()
-            for g_i, gene in enumerate(organism.genes):
-                # print(gene.ipos, gene.epos)
-                organism.genes[g_i].ipos, organism.genes[g_i].epos = gene_positions[g_i][0], gene_positions[g_i][1]
+            if len(organism.genes) > 8:
+                print("longer than 8.")
+                skip = True
+                break
+            # for g_i, gene in enumerate(organism.genes):
+            #     print(gene.ipos, gene.epos)
+                # organism.genes[g_i].ipos, organism.genes[g_i].epos = gene_positions[g_i][0], gene_positions[g_i][1]
 
 
-            if i == 1:
-                print(organism.genes[0].inhibitor)
-                for gene in organism.genes:
-                    print(gene.protein)
-                print(organism.genes[0].epos)
-                organism.genes[0].epos = (1, 2)
+            # if i == 1:
+            #     print(organism.genes[0].inhibitor)
+            #     for gene in organism.genes:
+            #         print(gene.protein)
+            #     print(organism.genes[0].epos)
+            #     organism.genes[0].epos = (1, 2)
 
             #     organism.transcription_factors[0].pos = (3, 5)
             #     organism.transcription_factors[1].pos = (3, 5)
@@ -187,7 +199,10 @@ def main():
             conc_array, rate_array = organism.live(int(config["cycles"]))
             # conc_array, rate_array = organism.live(500)
             # plot_save_individual(conc_array, "plot_conc_" + str(index))
-            plot_individual(conc_array)
+            if i == -1:
+                plot_individual(conc_array)
+            save_path = f"Supplementary_materials/States/organism_{index}_{i}.png"
+            plot_save_individual(conc_array, save_path)
             # plot_array += conc_array
 
             random_values = [[(0, 4), (1, 5)], [(5, 5), (7, 2)], [(1, 3), (2, 1)], [(10, 9), (3, 5)]]
@@ -227,8 +242,14 @@ def main():
             # labels.append("conc = " + starting_concentration_conditions[i])  # change this
             # labels.append("m = " + str(i))  # change this
         # exit()
-        plot_compare(comparison_data, file_name="conc_" + str(index), labels=labels, show=True, loc="upper right")  # change this
 
+        if skip:
+            continue
+
+
+        filename = f"Supplementary_materials/States/organism_{index}_compare"
+        plot_compare(comparison_data, file_name=filename + str(index), labels=labels, show=False, loc="upper right")  # change this
+        print(f"Organism {index} done")
         # random.setstate(random_state)
         # organism.beta = 1
         # organism.delta = 1
@@ -263,6 +284,7 @@ def main():
 
 
 def mock_mutate_init(organism, mutation_count, random_state):
+    print(mutation_count)
     if mutation_count <= 0:
         organism.init_life()
         return
@@ -273,8 +295,9 @@ def mock_mutate_init(organism, mutation_count, random_state):
     random.seed(107)
     for i in range(mutation_count):
         region = random.choice(["enhancer", "inhibitor", "protein"])
+        region = "enhancer"
         # region = "protein"
-        # print("random mutation region: ", region)
+        print("random mutation region: ", region)
         if region == "enhancer":
             region_size = len(organism.genes[random_gene_id].enhancer)
         elif region == "inhibitor":
@@ -371,7 +394,10 @@ def plot_compare(data, file_name: str, labels, show=False, loc="center right"):
               "#bdbdbd",
               "#d9d9d9",
               "#f0f0f0",
-              "#737373"
+              "#737373",
+              "#123456",
+              "#234561",
+              "#121212",
               ]
 
     x = []
@@ -380,15 +406,21 @@ def plot_compare(data, file_name: str, labels, show=False, loc="center right"):
         x.append(i)
         i = i + 1
 
+    # print("datalen: ", len(data))
+
     for index, item in enumerate(data):
-        plt.plot(x, item, color=colors[index], label=labels[index], linestyle=line_styles[index][1])
+        # print(index, colors, labels, line_styles)
+        try:
+            plt.plot(x, item, color=colors[index], label=labels[index], linestyle=line_styles[index][1])
+        except:
+            print(f"index: {index}, color size: {len(colors)}, label size: {len(labels)}, linestyle size: {len(line_styles)}")
     plt.legend(loc=loc)
     plt.xlabel("Time (cycle)")
     plt.ylabel("Concentration")
     if show:
         plt.show()
     else:
-        plt.savefig("Output/plots/compare_" + file_name + ".png")
+        plt.savefig(file_name)
     plt.clf()
 
 
@@ -436,7 +468,7 @@ def plot_save_individual(data, file_name: str):
     plt.legend(loc="center right")
     plt.xlabel("Time (cycle)")
     plt.ylabel("Concentration")
-    plt.savefig("Output/plots/" + file_name + ".png")
+    plt.savefig(file_name)
     plt.clf()
 
 
@@ -539,3 +571,25 @@ def plot_evolution(data):
 
 if __name__ == "__main__":
     main()
+
+
+# Explore later
+# #################### Granger Causality
+#
+# base = comparison_data[0]
+# base = np.fft.fft(base)
+# for g_index in range(1, len(comparison_data)):
+#     altered = comparison_data[g_index]
+#
+#     for d in range(len(base)):
+#         altered[d] = random.random()
+#     altered = np.fft.fft(altered)
+#     data = {'base': base, 'altered': altered}
+#     df = pd.DataFrame(data)
+#     result = grangercausalitytests(df[['base', 'altered']], maxlag=[3], verbose=False)
+#     print(f"p-value for ({labels[g_index]}) is {round(result[3][0]['ssr_ftest'][1], 4)}")
+#
+# print("############")
+# # exit()
+#
+# ####################

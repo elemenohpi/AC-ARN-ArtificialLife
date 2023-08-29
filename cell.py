@@ -25,14 +25,13 @@ class Cell:
             self.promoter_seq = config["promoter_sequence"]
             self.terminator_seq = config["terminator_sequence"]
             self.cell_size = int(config["cell_size"])
-            self.chaos_degree = int(config["chaos_degree"])
             self.TF_count = int(config["TF_count"])
             self.TF_bind_threshold = int(config["TF_bind_threshold"])
             self.max_inh = 0
             self.max_enh = 0
             self.beta = float(config["beta"])
             self.delta = float(config["delta"])
-            self.dissipation_rate = float(config["dissipation_rate"])
+            # self.dissipation_rate = float(config["dissipation_rate"])
             self.visual_file = config["visual_file"]
             self.concentration_file = config["concentration_file"]
             self.rate_file = config["rate_file"]
@@ -159,7 +158,9 @@ class Cell:
         self.transcription_factors = []
         for index, gene in enumerate(self.genes):
 
+            start_random_state = random.getstate()
             gene.protein_concentration = eval(self.starting_concentrations)
+            random.setstate(start_random_state)
 
             gene.gene_tf_count = self.TF_count
 
