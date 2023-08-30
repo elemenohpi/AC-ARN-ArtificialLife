@@ -30,7 +30,7 @@
 # rvalue, pvalue = stats.pearsonr(a, b)
 #
 # print(rvalue, pvalue)
-import random
-
-for i in range(10):
-	print(random.randint(0, 1))
+# import random
+#
+# for i in range(10):
+# 	print(random.randint(0, 1))

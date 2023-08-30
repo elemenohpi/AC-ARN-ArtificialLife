@@ -59,7 +59,7 @@ def main():
 
     # # Evolution
     # all_data = []
-    # for i in range(10):
+    # for i in range(20):
     #     Pop = Nature(config)
     #     Pop.create_organisms()
     #
@@ -68,19 +68,20 @@ def main():
     #     data = evolver.evolve(Pop.organisms)
     #     all_data.append(data)
     # plot_evolution(all_data)
-    #
+    # with open("temp_data.csv", "w") as data_file:
+    #     data_file.write(str(all_data))
     # exit()
 
-    # # Dynamic Generation
-    # for index, organism in enumerate(Pop.organisms):
-    #     organism.init_life()
-    #     conc_array, rate_array = organism.live(int(config["cycles"]))
-    #     plot_individual(conc_array)
-    #     # plot_rate(rate_array, 0)
-    #     # plot_save_individual(conc_array, "plot_" + str(index))
-    #     # plot_save_rate(rate_array, "rate_" + str(index))
-    #
-    # exit()
+    # Dynamic Generation
+    for index, organism in enumerate(Pop.organisms):
+        organism.init_life()
+        conc_array, rate_array = organism.live(int(config["cycles"]))
+        plot_individual(conc_array)
+        # plot_rate(rate_array, 0)
+        # plot_save_individual(conc_array, "plot_" + str(index))
+        # plot_save_rate(rate_array, "rate_" + str(index))
+
+    exit()
 
     # Initial State Comparison
     conc_array = []
@@ -103,12 +104,17 @@ def main():
             # organism.TF_count = 25 - i * 5  # change this
             # organism.cell_size = 10 + i * 5  # change this
             labels.append(f"m = {i}")
+
             mock_mutate_init(organism, i, start_random_state)  # change this
             # organism.starting_concentrations = starting_concentration_conditions[i]
             # for gene in organism.genes:
             #     gene.protein_concentration = "2"
-            random.setstate(start_random_state)
-            organism.init_life()
+            # random.setstate(start_random_state)
+            # organism.init_life()
+            # if i != 0:
+            #     print(len(organism.genes[0].enhancer), organism.genes[0].epos)
+            #     organism.genes[0].epos = (6, 6)
+
             if len(organism.genes) > 8:
                 print("longer than 8.")
                 skip = True
@@ -162,7 +168,6 @@ def main():
             # for tf in organism.transcription_factors:
             #     g[tf.gene_id] += 1
             # print(g)
-
             # #################################################
             # Changing TF counts for each rather than equal starting values
             # #################################################
@@ -250,6 +255,7 @@ def main():
         filename = f"Supplementary_materials/States/organism_{index}_compare"
         plot_compare(comparison_data, file_name=filename + str(index), labels=labels, show=False, loc="upper right")  # change this
         print(f"Organism {index} done")
+        exit()
         # random.setstate(random_state)
         # organism.beta = 1
         # organism.delta = 1
@@ -284,20 +290,22 @@ def main():
 
 
 def mock_mutate_init(organism, mutation_count, random_state):
-    print(mutation_count)
+    print()
     if mutation_count <= 0:
         organism.init_life()
         return
     organism.identify_genes()
+    random.seed(74102)
     gene_count = len(organism.genes)
     random_gene_id = random.randint(0, gene_count-1)
-    # random_gene_id = 0
-    random.seed(107)
+
+    # random_gene_id = 4
+    # print(random_gene_id, organism.genes[random_gene_id].enhancer)
     for i in range(mutation_count):
         region = random.choice(["enhancer", "inhibitor", "protein"])
-        region = "enhancer"
+        # region = "enhancer"
         # region = "protein"
-        print("random mutation region: ", region)
+        # print("random mutation region: ", region)
         if region == "enhancer":
             region_size = len(organism.genes[random_gene_id].enhancer)
         elif region == "inhibitor":
@@ -308,17 +316,17 @@ def mock_mutate_init(organism, mutation_count, random_state):
         # random_bp_index = 5
         base_pairs = ["A", "G", "C", "T"]
         if region == "inhibitor":
-            old_bp = organism.genes[random_gene_id].enhancer[random_bp_index]
-            base_pairs.remove(old_bp)
-            new_bp = random.choice(base_pairs)
-            # new_bp = "T"
-            organism.genes[random_gene_id].enhancer[random_bp_index] = new_bp
-        elif region == "enhancer":
             old_bp = organism.genes[random_gene_id].inhibitor[random_bp_index]
             base_pairs.remove(old_bp)
             new_bp = random.choice(base_pairs)
-            # new_bp = "A"
+            # new_bp = "T"
             organism.genes[random_gene_id].inhibitor[random_bp_index] = new_bp
+        elif region == "enhancer":
+            old_bp = organism.genes[random_gene_id].enhancer[random_bp_index]
+            base_pairs.remove(old_bp)
+            new_bp = random.choice(base_pairs)
+            # new_bp = "A"
+            organism.genes[random_gene_id].enhancer[random_bp_index] = new_bp
         elif region == "protein":  # protein
             old_bp = organism.genes[random_gene_id].protein[random_bp_index]
             base_pairs.remove(old_bp)
@@ -328,6 +336,8 @@ def mock_mutate_init(organism, mutation_count, random_state):
         else:
             raise ValueError("Wrong region specified for mutation")
         print("gene", random_gene_id, "mutation: index", random_bp_index, "of", region, "changed from", old_bp, "to", new_bp)
+
+    # print(organism.genes[random_gene_id].enhancer)
     random.setstate(random_state)
     organism.phony_init_life()
 

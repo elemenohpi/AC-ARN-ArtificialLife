@@ -116,10 +116,7 @@ class Cell:
         self.interaction_matrix = List.make_matrix(len(self.genes), len(self.genes))
         for i, g1 in enumerate(self.genes):
             for j, g2 in enumerate(self.genes):
-                if i == j:
-                    enh = inh = 0
-                else:
-                    enh, inh = self.calculate_matching_degree(g1, g2)
+                enh, inh = self.calculate_matching_degree(g1, g2)
                 # enh, inh = self.calculate_matching_degree(g1, g2)
                 if enh > self.max_enh:
                     self.max_enh = enh
