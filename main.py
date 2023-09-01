@@ -72,16 +72,16 @@ def main():
     #     data_file.write(str(all_data))
     # exit()
 
-    # Dynamic Generation
-    for index, organism in enumerate(Pop.organisms):
-        organism.init_life()
-        conc_array, rate_array = organism.live(int(config["cycles"]))
-        plot_individual(conc_array)
-        # plot_rate(rate_array, 0)
-        # plot_save_individual(conc_array, "plot_" + str(index))
-        # plot_save_rate(rate_array, "rate_" + str(index))
-
-    exit()
+    # # Dynamic Generation
+    # for index, organism in enumerate(Pop.organisms):
+    #     organism.init_life()
+    #     conc_array, rate_array = organism.live(int(config["cycles"]))
+    #     plot_individual(conc_array)
+    #     # plot_rate(rate_array, 0)
+    #     # plot_save_individual(conc_array, "plot_" + str(index))
+    #     # plot_save_rate(rate_array, "rate_" + str(index))
+    #
+    # exit()
 
     # Initial State Comparison
     conc_array = []
@@ -97,20 +97,37 @@ def main():
         gene_positions = [[(11, 10), (0, 2)], [(10, 10), (2, 1)], [(10, 11), (1, 3)], [(10, 11), (2, 2)]]
         labels = []
         skip = False
-        for i in range(5):
+        for i in range(2):
             random.setstate(start_random_state)
             # organism.beta = 1 + i * 0.05  # change this
             # organism.delta = 1 - i * 0.1  # change this
             # organism.TF_count = 25 - i * 5  # change this
             # organism.cell_size = 10 + i * 5  # change this
-            labels.append(f"m = {i}")
+            labels.append(f"Extra TF = {i}")
 
-            mock_mutate_init(organism, i, start_random_state)  # change this
+            # mock_mutate_init(organism, i, start_random_state)  # change this
             # organism.starting_concentrations = starting_concentration_conditions[i]
             # for gene in organism.genes:
             #     gene.protein_concentration = "2"
             # random.setstate(start_random_state)
-            # organism.init_life()
+            organism.init_life()
+
+            ################## This is to add an immutable TF for a specific gene ##################
+            target_protein = 0
+            for my_index in range(i):
+                tf = TF()
+                tf.marker = organism.genes[target_protein].protein
+                # tf.pos = pos
+                tf.pos = (0, 0)
+                tf.gene_id = organism.genes[target_protein].id
+                tf.IMMUTABLE = True
+                organism.genes[target_protein].gene_tf_count += 1
+                organism.transcription_factors.append(tf)
+            ########################################################################################
+
+
+            # organism.transcription_factors
+            # print(organism.ge)
             # if i != 0:
             #     print(len(organism.genes[0].enhancer), organism.genes[0].epos)
             #     organism.genes[0].epos = (6, 6)
@@ -255,7 +272,6 @@ def main():
         filename = f"Supplementary_materials/States/organism_{index}_compare"
         plot_compare(comparison_data, file_name=filename + str(index), labels=labels, show=False, loc="upper right")  # change this
         print(f"Organism {index} done")
-        exit()
         # random.setstate(random_state)
         # organism.beta = 1
         # organism.delta = 1

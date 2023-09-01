@@ -117,6 +117,8 @@ class Cell:
         for i, g1 in enumerate(self.genes):
             for j, g2 in enumerate(self.genes):
                 enh, inh = self.calculate_matching_degree(g1, g2)
+                if i == j:  # disable self-regulation due to significant increase in self-stabilization
+                    enh = inh = 0
                 # enh, inh = self.calculate_matching_degree(g1, g2)
                 if enh > self.max_enh:
                     self.max_enh = enh
@@ -247,10 +249,12 @@ class Cell:
                     self.genes[tf.bound_gene].num_bound += 1
                     tf.binding_strength -= 1
                     if tf.binding_strength == 0:
+
                         new_tf_gene_id = highest_conc_gene_id
                         self.genes[new_tf_gene_id].gene_tf_count += 1
                         self.genes[tf.gene_id].gene_tf_count -= 1
-                        tf.gene_id = new_tf_gene_id
+                        if not tf.IMMUTABLE:
+                            tf.gene_id = new_tf_gene_id
                         tf.marker = self.genes[new_tf_gene_id].protein
                         tf.max_enh = -1
                         tf.max_inh = -1

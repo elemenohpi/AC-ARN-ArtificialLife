@@ -8,4 +8,6 @@ class TF:
         self.max_enh = -1
         self.max_inh = -1
         self.exists = True
+        self.IMMUTABLE = False
+
         
